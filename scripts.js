@@ -146,7 +146,6 @@ class TodoList {
             } else if (el.complited === false) {
                 lis += `<li  class="no-active" data-status="${el.complited}" data-id="${el.id}">${el.task}<button class = "set-status">Change status</button><button class="delete-task">Delete</button></li>`;
             }
-
         }
         this.el.innerHTML = lis;
     }
