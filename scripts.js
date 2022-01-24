@@ -76,50 +76,7 @@ let list = document.getElementById('list');
 let btnCreate = document.getElementById('btn')
 let input = document.getElementById('input')
 let form = document.getElementById('form')
-let url = '  http://localhost:3000/todos'
-
-async function showTodos(url) {
-    try {
-        let data = await getJSON(url)
-        todo1.render(data)
-    } catch (err) {
-        console.log(err)
-    }
-}
-
-showTodos(url)
-
-async function changeComplited(url, id) {
-    try {
-        let result = await getJSON(url + "/" + id)
-        let newResult = await todo1.changeStatus(result)
-        await changeJSON(url + "/" + id, JSON.stringify(newResult))
-        let data = await getJSON(url)
-        await todo1.render(data)
-    } catch (err) {
-        console.log(err)
-    }
-}
-
-async function deleteTask(url, id) {
-    try {
-        await deleteJSON(url + "/" + id)
-        let result = await getJSON(url)
-        await todo1.render(result)
-    } catch (err) {
-        console.log(err)
-    }
-}
-
-async function addNewTask(url, json) {
-    try {
-        await saveJSON(url, json)
-        let getResult = await getJSON(url)
-        await todo1.render(getResult)
-    } catch (err) {
-        console.log(err)
-    }
-}
+let url = 'http://localhost:3000/todos'
 
 class TodoList {
     constructor(el) {
@@ -128,11 +85,34 @@ class TodoList {
             let elemParentTarget = e.target.closest('li')
             let id = elemParentTarget.dataset.id
             if (e.target.className === 'set-status') {
-                changeComplited(url, id)
+                this.changeComplited(url, id)
             } else if (e.target.className === 'delete-task') {
-                deleteTask(url, id)
+                this.deleteTask(url, id)
+                elemParentTarget.remove()
             }
         })
+    }
+
+    async changeComplited(url, id) {
+        try {
+            let result = await getJSON(url + "/" + id)
+            let newResult = await todo1.changeStatus(result)
+            await changeJSON(url + "/" + id, JSON.stringify(newResult))
+            let data = await getJSON(url)
+            await todo1.render(data)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    async showTodos(url) {
+        try {
+            let data = await getJSON(url)
+            console.log(data)
+            todo1.render(data)
+        } catch (err) {
+            console.log(err)
+        }
     }
 
     render(arr) {
@@ -151,9 +131,18 @@ class TodoList {
     }
 
     changeStatus(task) {
-        task.complited = !task.complited
+        task.complited = !task.complited;
         return task
     }
+
+    async deleteTask(url, id) {
+        try {
+            await deleteJSON(url + "/" + id)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
 }
 
 class Task {
@@ -161,15 +150,25 @@ class Task {
         this.task = input.value;
         this.complited = false;
     }
+
+    async addNewTask(url, json) {
+        try {
+            let res = await saveJSON(url, json)
+            list.insertAdjacentHTML("beforeend", `<li  class="no-active" data-status="${res.complited}" data-id="${res.id}">${res.task}<button class = "set-status">Change status</button><button class="delete-task">Delete</button></li>`)
+        } catch (err) {
+            console.log(err)
+        }
+    }
 }
 
+let task = new Task()
 let todo1 = new TodoList(list);
-
+todo1.showTodos(url)
 form.addEventListener('click', function (e) {
     if (e.target === btnCreate) {
         if (input.value !== '') {
             let json = JSON.stringify(new Task())
-            addNewTask(url, json)
+            task.addNewTask(url, json)
             input.value = ''
         }
     }
