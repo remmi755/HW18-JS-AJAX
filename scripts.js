@@ -108,7 +108,6 @@ class TodoList {
     async showTodos(url) {
         try {
             let data = await getJSON(url)
-            console.log(data)
             todo1.render(data)
         } catch (err) {
             console.log(err)
