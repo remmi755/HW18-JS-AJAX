@@ -169,6 +169,7 @@ form.addEventListener('click', function (e) {
             let json = JSON.stringify(new Task())
             task.addNewTask(url, json)
             input.value = ''
+            e.preventDefault();
         }
     }
 })
